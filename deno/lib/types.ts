@@ -58,6 +58,7 @@ export type CustomErrorParams = Partial<util.Omit<ZodCustomIssue, "code">>;
 export interface ZodTypeDef {
   errorMap?: ZodErrorMap;
   description?: string;
+  localized?: boolean;
 }
 
 class ParseInputLazyPath implements ParseInput {
@@ -104,12 +105,23 @@ type RawCreateParams =
       invalid_type_error?: string;
       required_error?: string;
       description?: string;
+      localized?: boolean;
     }
   | undefined;
-type ProcessedCreateParams = { errorMap?: ZodErrorMap; description?: string };
+type ProcessedCreateParams = {
+  errorMap?: ZodErrorMap;
+  description?: string;
+  localized?: boolean;
+};
 function processCreateParams(params: RawCreateParams): ProcessedCreateParams {
   if (!params) return {};
-  const { errorMap, invalid_type_error, required_error, description } = params;
+  const {
+    errorMap,
+    invalid_type_error,
+    required_error,
+    description,
+    localized,
+  } = params;
   if (errorMap && (invalid_type_error || required_error)) {
     throw new Error(
       `Can't use "invalid" or "required" in conjunction with custom error map.`
@@ -124,7 +136,7 @@ function processCreateParams(params: RawCreateParams): ProcessedCreateParams {
       return { message: params.invalid_type_error };
     return { message: ctx.defaultError };
   };
-  return { errorMap: customMap, description };
+  return { errorMap: customMap, description, localized };
 }
 
 export type SafeParseSuccess<Output> = { success: true; data: Output };
@@ -146,6 +158,10 @@ export abstract class ZodType<
 
   get description() {
     return this._def.description;
+  }
+
+  get localized() {
+    return this._def.localized;
   }
 
   abstract _parse(input: ParseInput): ParseReturnType<Output>;
@@ -374,6 +390,7 @@ export abstract class ZodType<
     this.describe = this.describe.bind(this);
     this.isNullable = this.isNullable.bind(this);
     this.isOptional = this.isOptional.bind(this);
+    this.localize = this.localize.bind(this);
   }
 
   optional(): ZodOptional<this> {
@@ -427,6 +444,14 @@ export abstract class ZodType<
     return new This({
       ...this._def,
       description,
+    });
+  }
+
+  localize(localized: boolean): this {
+    const This = (this as any).constructor;
+    return new This({
+      ...this._def,
+      localized,
     });
   }
 
