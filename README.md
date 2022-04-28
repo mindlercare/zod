@@ -96,6 +96,7 @@ These docs have been translated into [Chinese](./README_ZH.md).
   - [.and](#and)
   - [.describe](#describe)
   - [.localize](#localize)
+  - [.name](#name)
 - [Guides and concepts](#guides-and-concepts)
   - [Type inference](#type-inference)
   - [Writing generic functions](#writing-generic-functions)
@@ -1696,6 +1697,14 @@ const nullishString = z.string().nullish(); // string | null | undefined
 z.string().optional().nullable();
 ```
 
+### `.describe`
+
+A schema method that adds a description to the schema for documentation purpose.
+
+```ts
+const description = z.string().describe('usefull description').description; // string
+```
+
 ### `.localize`
 
 A schema method that defines that the schema should be translated.
@@ -1704,12 +1713,12 @@ A schema method that defines that the schema should be translated.
 const isLocalized = z.string().localize(true).localized; // boolean
 ```
 
-### `.describe`
+### `.name`
 
-A schema method that adds a description to the schema for documentation purpose.
+A schema method that defines the displayName.
 
 ```ts
-const description = z.string().describe('usefull description').description; // string
+const name = z.string().name(true).displayName;
 ```
 
 ### `.array`

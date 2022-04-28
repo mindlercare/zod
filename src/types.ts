@@ -59,6 +59,7 @@ export interface ZodTypeDef {
   errorMap?: ZodErrorMap;
   description?: string;
   localized?: boolean;
+  displayName?: string;
 }
 
 class ParseInputLazyPath implements ParseInput {
@@ -106,12 +107,14 @@ type RawCreateParams =
       required_error?: string;
       description?: string;
       localized?: boolean;
+      displayName?: string;
     }
   | undefined;
 type ProcessedCreateParams = {
   errorMap?: ZodErrorMap;
   description?: string;
   localized?: boolean;
+  displayName?: string;
 };
 function processCreateParams(params: RawCreateParams): ProcessedCreateParams {
   if (!params) return {};
@@ -121,6 +124,7 @@ function processCreateParams(params: RawCreateParams): ProcessedCreateParams {
     required_error,
     description,
     localized,
+    displayName,
   } = params;
   if (errorMap && (invalid_type_error || required_error)) {
     throw new Error(
@@ -136,7 +140,7 @@ function processCreateParams(params: RawCreateParams): ProcessedCreateParams {
       return { message: params.invalid_type_error };
     return { message: ctx.defaultError };
   };
-  return { errorMap: customMap, description, localized };
+  return { errorMap: customMap, description, localized, displayName };
 }
 
 export type SafeParseSuccess<Output> = { success: true; data: Output };
@@ -162,6 +166,10 @@ export abstract class ZodType<
 
   get localized() {
     return this._def.localized;
+  }
+
+  get displayName() {
+    return this._def.displayName;
   }
 
   abstract _parse(input: ParseInput): ParseReturnType<Output>;
@@ -391,6 +399,7 @@ export abstract class ZodType<
     this.isNullable = this.isNullable.bind(this);
     this.isOptional = this.isOptional.bind(this);
     this.localize = this.localize.bind(this);
+    this.name = this.name.bind(this);
   }
 
   optional(): ZodOptional<this> {
@@ -452,6 +461,14 @@ export abstract class ZodType<
     return new This({
       ...this._def,
       localized,
+    });
+  }
+
+  name(displayName: string): this {
+    const This = (this as any).constructor;
+    return new This({
+      ...this._def,
+      displayName,
     });
   }
 
