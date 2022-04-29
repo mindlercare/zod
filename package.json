@@ -63,7 +63,7 @@
     "depcruise": "depcruise -c .dependency-cruiser.js src",
     "benchmark": "ts-node src/benchmarks/index.ts",
     "prepare": "husky install",
-    "postinstall": "yarn build"
+    "postinstall": "yarn --ignore-scripts && yarn build"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.0",
